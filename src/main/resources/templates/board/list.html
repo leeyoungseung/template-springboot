@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, inital-scale=1.0"/>
+</head>
+<body>
+
+	<div>
+	    <hr/>
+	    <div>
+		    <table class="table" border="1">
+		    <thead class="table-dark">
+		    <tr>
+		        <th>No</th>
+		        <th>Contents Type</th>
+		        <th>Title</th>
+		        <th>CreatedTime</th>
+		        <th>UpdatedTime</th>
+		        <th>Likes</th>
+		    </tr>
+		    </thead>
+		    <tbody>
+		    <tr th:each="board: ${boardList}">
+		        <td th:text="${board.boardNo}"></td>
+		        <td th:text="${board.type}==1 ? 'Normal' : 'MemberShip'"></td>
+		        <td th:text="'[' + ${board.title} + ']'"></td>
+		        <td th:text="${board.createdTime}"></td>
+		        <td th:text="${board.updatedTime}"></td>
+		        <td th:text="${board.likes}"></td>
+		    </tr>
+		    </tbody>
+		    </table>
+	    </div>
+	</div>
+
+</body>
+</html>
