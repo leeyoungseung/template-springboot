@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, inital-scale=1.0"/>
+<title>Board Write</title>
+</head>
+<body>
+<div>
+
+    <form method="post" th:action=@{/board/write} class="form-horizontal">
+    <fieldset>
+    	<legend class="text-center header">Write Board</legend>
+
+    	<input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
+
+      <div class="col-md-4">
+        <h5><label> Type </label></h5>
+	    <select class="form-select" name="type">
+	        <option th:each="boardType : ${boardTypes}" th:value="${boardType.value}" th:inline="text">[[${boardType.name}]]</option>
+	    </select>
+	  </div>
+
+
+    <div class="form-group py-2">
+      <div class="col-md-8">
+        <h5><label>Title</label></h5>
+        <input id="title" name="title" type="text" placeholder="Input Title" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group py-2">
+      <div class="col-md-8">
+        <h5><label>  Contents </label></h5>
+        <textarea name="contents" placeholder="Input Contents" class="form-control" rows="6"></textarea>
+      </div>
+    </div>
+    <hr/>
+    <div class="form-group py-2">
+       <input type="submit" value="Write Complete" class="btn btn-primary">
+    </div>
+    </fieldset>
+    </form>
+
+    <div>
+        <button class="btn btn-info" type="button" onclick="location.href='/board/list'">Back to List</button>
+    </div>
+</div>
+
+</body>
+</html>

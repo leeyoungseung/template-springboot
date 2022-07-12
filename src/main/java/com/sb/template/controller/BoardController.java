@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.sb.template.entity.Board;
+import com.sb.template.enums.BoardType;
+import com.sb.template.forms.BoardForm;
 import com.sb.template.service.BoardService;
 
 @Controller
@@ -26,4 +28,24 @@ public class BoardController {
 
 		return "board/list";
 	}
+
+
+	@RequestMapping(method = RequestMethod.GET, path = "write")
+	public String writeBoard(Model model) {
+
+		model.addAttribute("boardTypes", BoardType.getBoardTypes());
+
+		return "board/write";
+	}
+
+
+	@RequestMapping(method = RequestMethod.POST, path = "write")
+	public String writeCompleteBoard(BoardForm form, Model model) {
+
+		Integer boardNo = null;
+		boardNo = boardService.createBoard(form.toEntity()).getBoardNo();
+
+		return "redirect:/board/list";
+	}
+
 }

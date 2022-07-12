@@ -21,4 +21,9 @@ public class BoardService {
 
 		return res;
 	}
+
+	public Board createBoard(Board board) {
+
+		return boardRepository.save(board);
+	}
 }
