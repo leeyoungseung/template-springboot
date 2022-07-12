@@ -29,7 +29,7 @@
 		    <tr th:each="board: ${boardList}">
 		        <td th:text="${board.boardNo}"></td>
 		        <td th:text="${board.type}==1 ? 'Normal' : 'MemberShip'"></td>
-		        <td th:text="'[' + ${board.title} + ']'"></td>
+		        <td><a th:href="@{/board/read/{boardNo}(boardNo=${board.boardNo})}">[[${board.title}]]</a></td>
 		        <td th:text="${board.createdTime}"></td>
 		        <td th:text="${board.updatedTime}"></td>
 		        <td th:text="${board.likes}"></td>
