@@ -7,7 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,9 +45,11 @@ public class Board {
 	private String memberId;
 
 	@Column(name = "created_time")
+	@CreationTimestamp
 	private Date createdTime;
 
 	@Column(name = "updated_time")
+	@UpdateTimestamp
 	private Date updatedTime;
 
 	@Column(name = "likes")
@@ -51,5 +58,10 @@ public class Board {
 	@Column(name = "dis_likes")
 	private Integer dislikes;
 
+	@PrePersist
+	public void prePersist() {
+		this.likes = this.likes == null ? 0 : this.likes;
+		this.dislikes = this.dislikes == null ? 0 : this.dislikes;
+	}
 }
 
