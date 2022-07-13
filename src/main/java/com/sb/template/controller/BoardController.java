@@ -58,4 +58,25 @@ public class BoardController {
 		return "board/read";
 	}
 
+
+	@RequestMapping(method = RequestMethod.GET, path = "update/{boardNo}")
+	public String updateBoard(@PathVariable int boardNo, Model model) {
+
+		boardService.updateBoardForm(boardNo, model);
+
+		return "board/update";
+	}
+
+
+	@RequestMapping(method = RequestMethod.POST, path = "update/{boardNo}")
+	public String updateCompleteBoard(@PathVariable int boardNo, BoardForm form, Model model) {
+
+		boardService.updateBoard(boardNo, form.toEntity());
+
+		model.addAttribute("message", "Update Success");
+
+		return "redirect:/board/read/"+boardNo;
+	}
+
+
 }
