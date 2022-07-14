@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sb.template.entity.Board;
 import com.sb.template.enums.BoardType;
@@ -78,5 +79,25 @@ public class BoardController {
 		return "redirect:/board/read/"+boardNo;
 	}
 
+
+	@RequestMapping(method = RequestMethod.GET, path = "delete/{boardNo}")
+	public String deleteBoard(@PathVariable int boardNo, Model model) {
+
+		model.addAttribute("board", boardService.getBoardOne(boardNo));
+
+		return "board/delete";
+	}
+
+
+	@RequestMapping(method = RequestMethod.POST, path = "delete")
+	public String deleteCompleteBoard(
+			@RequestParam(name = "boardNo", required = true) int boardNo,
+			Model model) {
+
+		boardService.deleteBoard(boardNo);
+
+		model.addAttribute("message", "Delete Success");
+		return "redirect:/board/list";
+	}
 
 }

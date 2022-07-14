@@ -70,4 +70,15 @@ public class BoardService {
 		Board endUpdatedBoard = boardRepository.save(board);
 		return endUpdatedBoard;
 	}
+
+	public void deleteBoard(int boardNo) {
+
+		Optional<Board> res = boardRepository.findById(boardNo);
+
+		if (res.isEmpty()) {
+			return ;
+		}
+
+		boardRepository.delete(res.get());
+	}
 }
