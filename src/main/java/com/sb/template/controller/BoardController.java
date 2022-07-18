@@ -27,13 +27,10 @@ public class BoardController {
 
 	@RequestMapping(method = RequestMethod.GET, path = "list")
 	public String viewBoardList(Model model) {
-		log.info("Start API");
 
 		List<Board> boardList = boardService.getAllBoard();
 		model.addAttribute("boardList", boardList);
-		log.info("Response Data : {} ", boardList);
 
-		log.info("End API");
 		return "board/list";
 	}
 

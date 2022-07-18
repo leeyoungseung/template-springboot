@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
+import com.sb.template.annotation.Timer;
 import com.sb.template.entity.Board;
 import com.sb.template.enums.BoardType;
 import com.sb.template.repo.BoardRepository;
@@ -21,6 +22,7 @@ public class BoardService {
 	@Autowired
 	private BoardRepository boardRepository;
 
+	@Timer
 	public List<Board> getAllBoard() {
 
 		List<Board> res = boardRepository.findAll();
@@ -31,11 +33,13 @@ public class BoardService {
 		return res;
 	}
 
+	@Timer
 	public Board createBoard(Board board) {
 
 		return boardRepository.save(board);
 	}
 
+	@Timer
 	public Board getBoardOne(int boardNo) {
 
 		Optional<Board> board = boardRepository.findById(boardNo);
@@ -47,6 +51,7 @@ public class BoardService {
 		return board.get();
 	}
 
+	@Timer
 	public void updateBoardForm(int boardNo, Model model) {
 		Optional<Board> board = boardRepository.findById(boardNo);
 
@@ -58,6 +63,7 @@ public class BoardService {
 		model.addAttribute("board", board.get());
 	}
 
+	@Timer
 	@Transactional
 	public Board updateBoard(int boardNo, Board updatedBoard) {
 
@@ -76,6 +82,7 @@ public class BoardService {
 		return endUpdatedBoard;
 	}
 
+	@Timer
 	public void deleteBoard(int boardNo) {
 
 		Optional<Board> res = boardRepository.findById(boardNo);
