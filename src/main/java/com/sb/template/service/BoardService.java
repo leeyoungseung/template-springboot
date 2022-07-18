@@ -12,6 +12,9 @@ import com.sb.template.entity.Board;
 import com.sb.template.enums.BoardType;
 import com.sb.template.repo.BoardRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class BoardService {
 
@@ -22,6 +25,8 @@ public class BoardService {
 
 		List<Board> res = boardRepository.findAll();
 		if (res == null) return null;
+
+		log.debug("Data from DB : {}", res);
 
 		return res;
 	}

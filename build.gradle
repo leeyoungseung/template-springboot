@@ -8,6 +8,14 @@ group = 'com.sb.template'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+
+	all*.exclude module : 'spring-boot-starter-logging'
+}
+
 repositories {
 	mavenCentral()
 }
@@ -32,6 +40,9 @@ dependencies {
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Log4j
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 
 
 }

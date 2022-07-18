@@ -15,6 +15,9 @@ import com.sb.template.enums.BoardType;
 import com.sb.template.forms.BoardForm;
 import com.sb.template.service.BoardService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Controller
 @RequestMapping(path = "/board")
 public class BoardController {
@@ -24,10 +27,13 @@ public class BoardController {
 
 	@RequestMapping(method = RequestMethod.GET, path = "list")
 	public String viewBoardList(Model model) {
+		log.info("Start API");
 
 		List<Board> boardList = boardService.getAllBoard();
 		model.addAttribute("boardList", boardList);
+		log.info("Response Data : {} ", boardList);
 
+		log.info("End API");
 		return "board/list";
 	}
 
