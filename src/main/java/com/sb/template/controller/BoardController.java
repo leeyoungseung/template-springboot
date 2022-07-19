@@ -1,10 +1,13 @@
 package com.sb.template.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,7 +48,12 @@ public class BoardController {
 
 
 	@RequestMapping(method = RequestMethod.POST, path = "write")
-	public String writeCompleteBoard(BoardForm form, Model model) {
+	public String writeCompleteBoard(@Validated BoardForm form,
+			BindingResult bindingResult, Model model) {
+
+		if (validation(bindingResult)) {
+			return "redirect:/board/list";
+		}
 
 		Integer boardNo = null;
 		boardNo = boardService.createBoard(form.toEntity()).getBoardNo();
@@ -55,7 +63,7 @@ public class BoardController {
 
 
 	@RequestMapping(method = RequestMethod.GET, path = "read/{boardNo}")
-	public String viewBoardOne(@PathVariable int boardNo, Model model) {
+	public String viewBoardOne(@PathVariable(required = true) int boardNo, Model model) {
 
         model.addAttribute("board", boardService.getBoardOne(boardNo));
 
@@ -64,7 +72,7 @@ public class BoardController {
 
 
 	@RequestMapping(method = RequestMethod.GET, path = "update/{boardNo}")
-	public String updateBoard(@PathVariable int boardNo, Model model) {
+	public String updateBoard(@PathVariable(required = true) int boardNo, Model model) {
 
 		boardService.updateBoardForm(boardNo, model);
 
@@ -73,7 +81,14 @@ public class BoardController {
 
 
 	@RequestMapping(method = RequestMethod.POST, path = "update/{boardNo}")
-	public String updateCompleteBoard(@PathVariable int boardNo, BoardForm form, Model model) {
+	public String updateCompleteBoard(
+			@PathVariable(required = true) int boardNo,
+			@Validated BoardForm form,
+			BindingResult bindingResult, Model model) {
+
+		if (validation(bindingResult)) {
+			return "redirect:/board/list";
+		}
 
 		boardService.updateBoard(boardNo, form.toEntity());
 
@@ -101,6 +116,30 @@ public class BoardController {
 
 		model.addAttribute("message", "Delete Success");
 		return "redirect:/board/list";
+	}
+
+
+	/**
+	 * If validation check result is OK, return false.
+	 * In the opposite case return true.
+	 *
+	 * @param bindingResult
+	 * @return
+	 */
+	private boolean validation(BindingResult bindingResult) {
+
+		if (bindingResult.hasErrors()) {
+			log.error("Validation-NG : {} ", bindingResult.getAllErrors()
+					.stream()
+					.map(e -> e.getDefaultMessage())
+					.collect(Collectors.toList())
+					);
+
+			return true;
+		} else {
+			log.info("Validation-OK");
+			return false;
+		}
 	}
 
 }
