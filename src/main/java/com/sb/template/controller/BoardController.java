@@ -34,7 +34,7 @@ public class BoardController {
 	@Autowired
 	private BoardService boardService;
 
-	@RequestMapping(method = RequestMethod.GET, path = "list")
+	@RequestMapping(method = RequestMethod.GET, value = {"list", "/", ""})
 	public String viewBoardList(Model model) {
 
 		List<Board> boardList = boardService.getAllBoard();
