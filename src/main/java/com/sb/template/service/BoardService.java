@@ -1,6 +1,7 @@
 package com.sb.template.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class BoardService {
 		Optional<Board> board = boardRepository.findById(boardNo);
 
 		if (board.isEmpty()) {
-			return null;
+			throw new NoSuchElementException("Not exist Board !! ["+boardNo+"]");
 		}
 
 		return board.get();

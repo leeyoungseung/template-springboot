@@ -1,6 +1,7 @@
 package com.sb.template.aop;
 
 import java.lang.reflect.Method;
+import java.util.NoSuchElementException;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -10,9 +11,10 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.aspectj.util.GenericSignature.ClassSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
+
+import com.sb.template.exception.UnvalidParamException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,8 +68,22 @@ public class CommonAopLog {
 			log.info("Process execution time  : {} ", stopWatch.getTotalTimeSeconds());
 			return res;
 		} catch(Throwable throwable) {
-			log.error("Process-Error-{} , Message : {} ",
+			log.error("Process-Error {} , Message : {} ",
 					method.getName(), throwable.getMessage());
+
+			if (throwable instanceof NoSuchElementException) {
+				log.error("Exception Type {}", throwable.getClass().getName());
+				throw new NoSuchElementException(throwable.getMessage());
+
+			} else if (throwable instanceof UnvalidParamException) {
+				log.error("Exception Type {}", throwable.getClass().getName());
+				throw new UnvalidParamException(throwable.getMessage());
+
+			} else if (throwable instanceof RuntimeException) {
+				log.error("Exception Type {}", throwable.getClass().getName());
+				throw new RuntimeException(throwable.getMessage());
+			}
+
 			return res;
 		}
 	}

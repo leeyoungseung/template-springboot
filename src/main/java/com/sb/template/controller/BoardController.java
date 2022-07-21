@@ -3,18 +3,24 @@ package com.sb.template.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.sb.template.entity.Board;
 import com.sb.template.enums.BoardType;
+import com.sb.template.exception.ProcFailureException;
+import com.sb.template.exception.UnvalidParamException;
 import com.sb.template.forms.BoardForm;
 import com.sb.template.service.BoardService;
 
@@ -51,12 +57,14 @@ public class BoardController {
 	public String writeCompleteBoard(@Validated BoardForm form,
 			BindingResult bindingResult, Model model) {
 
-		if (validation(bindingResult)) {
-			return "redirect:/board/list";
-		}
+		validation(bindingResult);
 
 		Integer boardNo = null;
 		boardNo = boardService.createBoard(form.toEntity()).getBoardNo();
+
+		if (boardNo == null) {
+			throw new ProcFailureException("Failure Board write process");
+		}
 
 		return "redirect:/board/list";
 	}
@@ -86,11 +94,11 @@ public class BoardController {
 			@Validated BoardForm form,
 			BindingResult bindingResult, Model model) {
 
-		if (validation(bindingResult)) {
-			return "redirect:/board/list";
-		}
+		validation(bindingResult);
 
-		boardService.updateBoard(boardNo, form.toEntity());
+		if (boardService.updateBoard(boardNo, form.toEntity()) == null) {
+			throw new ProcFailureException("Failure Board update process");
+		}
 
 		model.addAttribute("message", "Update Success");
 
@@ -126,20 +134,37 @@ public class BoardController {
 	 * @param bindingResult
 	 * @return
 	 */
-	private boolean validation(BindingResult bindingResult) {
+	private void validation(BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
-			log.error("Validation-NG : {} ", bindingResult.getAllErrors()
-					.stream()
-					.map(e -> e.getDefaultMessage())
-					.collect(Collectors.toList())
-					);
+			List<String> errorStrList = bindingResult.getAllErrors()
+			.stream()
+			.map(e -> e.getDefaultMessage())
+			.collect(Collectors.toList());
 
-			return true;
-		} else {
-			log.info("Validation-OK");
-			return false;
+			log.error("Validation-NG : {} ", errorStrList);
+
+			throw new UnvalidParamException(errorStrList);
 		}
+		log.info("Validation-OK");
+	}
+
+
+	@ExceptionHandler
+	public ModelAndView procFailureErrorHandler(HttpServletRequest req, ProcFailureException e) {
+		ModelAndView mav = new ModelAndView();
+
+		String message = e.getMessage();
+		String redirectUrl = "http://localhost:8080/";
+		String view = "/common/error";
+
+		mav.addObject("message", message);
+		mav.addObject("redirectUrl", redirectUrl);
+		mav.setViewName(view);
+
+		log.error("Message : {}, RedirectUrl : {}, View : {}", message, redirectUrl, view);
+
+		return mav;
 	}
 
 }
