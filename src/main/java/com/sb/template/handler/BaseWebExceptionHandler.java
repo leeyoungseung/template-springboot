@@ -13,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sb.template.aop.CommonAopLog;
 import com.sb.template.controller.BoardController;
-import com.sb.template.exception.UnvalidParamException;
+import com.sb.template.exception.InvalidParamException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,7 +65,7 @@ public class BaseWebExceptionHandler {
 
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	@ExceptionHandler
-	public ModelAndView badRequestErrorHandler(HttpServletRequest req, UnvalidParamException e) {
+	public ModelAndView badRequestErrorHandler(HttpServletRequest req, InvalidParamException e) {
 
 		String handlerType = Thread.currentThread().getStackTrace()[1].getMethodName();
 		String message = e.getMessage();

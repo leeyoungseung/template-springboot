@@ -14,7 +14,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
-import com.sb.template.exception.UnvalidParamException;
+import com.sb.template.exception.InvalidParamException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,9 +75,9 @@ public class CommonAopLog {
 				log.error("Exception Type {}", throwable.getClass().getName());
 				throw new NoSuchElementException(throwable.getMessage());
 
-			} else if (throwable instanceof UnvalidParamException) {
+			} else if (throwable instanceof InvalidParamException) {
 				log.error("Exception Type {}", throwable.getClass().getName());
-				throw new UnvalidParamException(throwable.getMessage());
+				throw new InvalidParamException(throwable.getMessage());
 
 			} else if (throwable instanceof RuntimeException) {
 				log.error("Exception Type {}", throwable.getClass().getName());

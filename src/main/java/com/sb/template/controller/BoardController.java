@@ -20,8 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sb.template.entity.Board;
 import com.sb.template.enums.BoardType;
+import com.sb.template.exception.InvalidParamException;
 import com.sb.template.exception.ProcFailureException;
-import com.sb.template.exception.UnvalidParamException;
 import com.sb.template.forms.BoardForm;
 import com.sb.template.service.BoardService;
 
@@ -144,7 +144,7 @@ public class BoardController {
 
 			log.error("Validation-NG : {} ", errorStrList);
 
-			throw new UnvalidParamException(errorStrList);
+			throw new InvalidParamException(errorStrList);
 		}
 		log.info("Validation-OK");
 	}
