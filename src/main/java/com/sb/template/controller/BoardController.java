@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,10 +38,10 @@ public class BoardController {
 	private BoardService boardService;
 
 	@RequestMapping(method = RequestMethod.GET, value = {"list", "/", ""})
-	public String viewBoardList(Model model) {
+	public String viewBoardList(Pageable pageable, Model model) {
 
-		List<Board> boardList = boardService.getAllBoard();
-		model.addAttribute("boardList", boardList);
+		Page<Board> pageInfo = boardService.getAllBoard(pageable);
+		model.addAttribute("pageInfo", pageInfo);
 
 		return "board/list";
 	}

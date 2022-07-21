@@ -12,6 +12,10 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.sb.template.entity.Board;
 import com.sb.template.repo.BoardRepository;
@@ -32,6 +36,8 @@ public class BoardServiceTest {
 	public void getAllBoardTest() {
 
 		// given
+		Pageable pageable = PageRequest.of(0, 10);
+
 		Board board1 = new Board(1, 1, "test_board_title",
 				"test_board_contents001","test001@gmail.com",new Date(), new Date(), 0, 0);
 		Board board2 = new Board(2, 2, "test_board_title",
@@ -40,15 +46,17 @@ public class BoardServiceTest {
 		boardList.add(board1);
 		boardList.add(board2);
 
-		BDDMockito.given(boardRepo.findAll()).willReturn(boardList);
+		Page<Board> expectedResult = new PageImpl<Board>(boardList);
+
+		BDDMockito.given(boardRepo.findAll(pageable)).willReturn(expectedResult);
 
 		// when
-		List<Board> result = boardServ.getAllBoard();
+		Page<Board> result = boardServ.getAllBoard(pageable);
 
 		// then
 		Assertions.assertThat(result).isNotNull();
-		Assertions.assertThat(result.size()).isEqualTo(2);
-		Assertions.assertThat(result.get(0).getTitle()).isEqualTo(board1.getTitle());
+		Assertions.assertThat(result.getContent().size()).isEqualTo(2);
+		Assertions.assertThat(result.getContent().get(0).getTitle()).isEqualTo(board1.getTitle());
 
 	}
 

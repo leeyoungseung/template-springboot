@@ -26,7 +26,7 @@
 		    </tr>
 		    </thead>
 		    <tbody>
-		    <tr th:each="board: ${boardList}">
+		    <tr th:each="board: ${pageInfo.getContent()}">
 		        <td th:text="${board.boardNo}"></td>
 		        <td th:text="${board.type}==1 ? 'Normal' : 'MemberShip'"></td>
 		        <td><a th:href="@{/board/read/{boardNo}(boardNo=${board.boardNo})}">[[${board.title}]]</a></td>
@@ -36,6 +36,26 @@
 		    </tr>
 		    </tbody>
 		    </table>
+	    </div>
+
+	    <hr/>
+
+	    <!-- paging -->
+	    <div id="paging-container" class="pagination nav justify-content-center px-4">
+	            <div th:class="${pageInfo.first} ? 'page-item disabled' : 'page-item'">
+	                <span class="page-link" th:if="${pageInfo.first}">Prev</span>
+	                <a class="page-link" th:if="${not pageInfo.first}" th:href="@{/board/list(page=1)}">Prev</a>
+	            </div>
+	            <div th:class="${p} != ${pageInfo.number+1} ? 'page-item' : 'page-item disabled'" th:each="p : ${#numbers.sequence(1, (pageInfo.totalPages))}">
+	                <span class="page-link" th:if="${p} == ${pageInfo.number+1}" th:text="'['+${p}+']&nbsp;'"></span>
+	                <a class="page-link" th:if="${p} != ${pageInfo.number+1}" th:href="@{/board/list(page=${p})}">
+	                    <span th:text="'['+${p}+']'"></span>
+	                </a>
+	            </div>
+	            <div th:class="${pageInfo.last} ? 'page-item disabled' : 'page-item' ">
+	                <span class="page-link"  th:if="${pageInfo.last}">Next</span>
+	                <a class="page-link" th:if="${not pageInfo.last}" th:href="@{/board/list(page=(${pageInfo.totalPages}))}">Next</a>
+	            </div>
 	    </div>
 	</div>
 

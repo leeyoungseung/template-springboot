@@ -1,10 +1,12 @@
 package com.sb.template.service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -24,9 +26,11 @@ public class BoardService {
 	private BoardRepository boardRepository;
 
 	@Timer
-	public List<Board> getAllBoard() {
+	public Page<Board> getAllBoard(Pageable pageable) {
+		int page = (pageable.getPageNumber() == 0) ? 0 : (pageable.getPageNumber() - 1);
+		pageable = PageRequest.of(page, pageable.getPageSize());
 
-		List<Board> res = boardRepository.findAll();
+		Page<Board> res = boardRepository.findAll(pageable);
 		if (res == null) return null;
 
 		log.debug("Data from DB : {}", res);
