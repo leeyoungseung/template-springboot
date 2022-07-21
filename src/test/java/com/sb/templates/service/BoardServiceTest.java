@@ -1,5 +1,7 @@
 package com.sb.templates.service;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,5 +54,22 @@ public class BoardServiceTest {
 
 	}
 
+
+	@Test
+	@DisplayName("Testing BoardService createBoard")
+	public void createBoardTest() {
+		// given
+		Board board = new Board(1, 1, "test_board_title",
+				"test_board_contents001","test001@gmail.com",new Date(), new Date(), 0, 0);
+		BDDMockito.given(boardRepo.save(any())).willReturn(board);
+
+		// when
+		Board result = boardServ.createBoard(board);
+
+		// then
+		Assertions.assertThat(result).isNotNull();
+		Assertions.assertThat(result.getTitle()).isEqualTo(board.getTitle());
+		Assertions.assertThat(result.getContents()).isEqualTo(board.getContents());
+	}
 }
 
