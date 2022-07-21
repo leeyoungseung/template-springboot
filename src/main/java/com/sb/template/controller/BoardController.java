@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,7 +46,7 @@ public class BoardController {
 
 
 	@RequestMapping(method = RequestMethod.GET, path = "write")
-	public String writeBoard(Model model) {
+	public String writeBoard(@ModelAttribute("boardForm") BoardForm form, Model model) {
 
 		model.addAttribute("boardTypes", BoardType.getBoardTypes());
 
@@ -54,11 +55,12 @@ public class BoardController {
 
 
 	@RequestMapping(method = RequestMethod.POST, path = "write")
-	public String writeCompleteBoard(@Validated BoardForm form,
+	public String writeCompleteBoard(@ModelAttribute("boardForm") @Validated BoardForm form,
 			BindingResult bindingResult, Model model) {
 
-		validation(bindingResult);
-
+		if (validationForSaveInputValue(bindingResult)) {
+			return writeBoard(form, model);
+		}
 		Integer boardNo = null;
 		boardNo = boardService.createBoard(form.toEntity()).getBoardNo();
 
@@ -91,7 +93,7 @@ public class BoardController {
 	@RequestMapping(method = RequestMethod.POST, path = "update/{boardNo}")
 	public String updateCompleteBoard(
 			@PathVariable(required = true) int boardNo,
-			@Validated BoardForm form,
+			@ModelAttribute @Validated BoardForm form,
 			BindingResult bindingResult, Model model) {
 
 		validation(bindingResult);
@@ -128,11 +130,9 @@ public class BoardController {
 
 
 	/**
-	 * If validation check result is OK, return false.
-	 * In the opposite case return true.
+	 * If validation check result is fail, occur InvalidParamException.
 	 *
 	 * @param bindingResult
-	 * @return
 	 */
 	private void validation(BindingResult bindingResult) {
 
@@ -147,6 +147,29 @@ public class BoardController {
 			throw new UnvalidParamException(errorStrList);
 		}
 		log.info("Validation-OK");
+	}
+
+	/**
+	 * If validation check result is OK, return false.
+	 * In the opposite case return true.
+	 *
+	 * @param bindingResult
+	 * @return boolean
+	 */
+	private boolean validationForSaveInputValue(BindingResult bindingResult) {
+
+		if (bindingResult.hasErrors()) {
+			List<String> errorStrList = bindingResult.getAllErrors()
+			.stream()
+			.map(e -> e.getDefaultMessage())
+			.collect(Collectors.toList());
+
+			log.error("Validation-NG : {} ", errorStrList);
+
+			return true;
+		}
+		log.info("Validation-OK");
+		return false;
 	}
 
 
