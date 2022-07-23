@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layout}">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, inital-scale=1.0"/>
 </head>
 <body>
 
-	<div>
+	<div layout:fragment="contents">
 		<div class="nav justify-content-end px-5 pt-2">
 	        <button class="btn btn-info text-white" id="write-board" type="button" onclick="location.href='/board/write'">
 	        Contents Write
