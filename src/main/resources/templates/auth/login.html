@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layout}">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, inital-scale=1.0"/>
+
+</head>
+<body>
+<div layout:fragment="contents">
+    <form method="post" th:action=@{/auth/login}>
+	<h1 class="h3 mb-3 fw-normal text-center">Please Login</h1>
+
+	<div>
+		<button class="btn btn-secondary py-2 my-2" type="button" onclick="location.href='javascript:history.back();'">Return to Previous Page</button>
+		<button class="btn btn-info py-2 my-2" type="button" onclick="location.href='/board/list'">Back to List</button>
+	</div>
+
+</div>
+</body>
+</html>

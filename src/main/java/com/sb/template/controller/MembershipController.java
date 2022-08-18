@@ -1,0 +1,96 @@
+package com.sb.template.controller;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.sb.template.dto.ResponseDto;
+import com.sb.template.entity.Member;
+import com.sb.template.enums.ResponseInfo;
+import com.sb.template.forms.AuthForm;
+import com.sb.template.service.MemberService;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Controller
+@RequestMapping("auth")
+@Slf4j
+public class MembershipController {
+
+	@Autowired
+	private MemberService memberService;
+
+
+	@RequestMapping(method = RequestMethod.GET, path = "/join")
+	public String joinMember(@ModelAttribute AuthForm form) {
+
+		return "auth/join";
+	}
+
+
+	@RequestMapping(method = RequestMethod.POST, path = "/join")
+	public String joinMember(@ModelAttribute @Validated AuthForm form, BindingResult bindingResult, Model model) {
+
+		if (bindingResult.hasErrors()) {
+			List<String> errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.toList());
+			model.addAttribute("message", String.join(", ", errors));
+			model.addAttribute("redirectUrl", "/auth/join");
+			return "/common/message";
+		}
+
+        Member member = memberService.createMember(form);
+
+		if (member == null) {
+			model.addAttribute("message", form.getMemberId()+" is already exist!!");
+			model.addAttribute("redirectUrl", "/auth/join");
+			return "/common/message";
+		}
+
+		model.addAttribute("message", member.getMemberId()+"has been joined!!");
+		model.addAttribute("redirectUrl", "/auth/login");
+
+		return "/common/message";
+	}
+
+
+	@PostMapping(path = "/checkId")
+	@ResponseBody
+	public ResponseEntity<?> checkId(
+			@RequestParam(required = true,
+			name = "memberId")
+			@Email
+			@NotBlank
+			String memberId
+			) {
+
+		log.info("Input memberId : {}", memberId);
+
+		return ResponseEntity.ok(ResponseDto.builder()
+				.resultCode(ResponseInfo.SUCCESS.getResultCode())
+				.message(ResponseInfo.SUCCESS.getMessage())
+				.data(memberService.existMemberId(memberId))
+				.build()
+				);
+	}
+
+
+	@RequestMapping(method = RequestMethod.GET, path = "/login")
+	public String loginForm() {
+		return "auth/login";
+	}
+}
