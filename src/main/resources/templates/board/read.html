@@ -26,8 +26,8 @@
 </article>
 <div>
 <button class="btn btn-info" type="button" onclick="location.href='/board/list'">Back to List</button>
-<button class="btn btn-warning" type="button" th:onclick="'location.href=\'' + @{/board/update/{boardNo}(boardNo=${board.boardNo})} +'\';'">Update</button>
-<button class="btn btn-danger" type="button" th:onclick="'location.href=\'' + @{/board/delete/{boardNo}(boardNo=${board.boardNo})} +'\';'">Delete</button>
+<button class="btn btn-warning" th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}"  type="button" th:onclick="'location.href=\'' + @{/board/update/{boardNo}(boardNo=${board.boardNo})} +'\';'">Update</button>
+<button class="btn btn-danger" th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{boardNo}(boardNo=${board.boardNo})} +'\';'">Delete</button>
 </div>
 
 </div>

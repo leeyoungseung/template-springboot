@@ -3,6 +3,9 @@ package com.sb.template.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
@@ -93,4 +96,40 @@ public class MembershipController {
 	public String loginForm() {
 		return "auth/login";
 	}
+
+
+	@RequestMapping(method = RequestMethod.POST, path = "/login")
+	public String doLogin(@ModelAttribute @Validated AuthForm form, BindingResult bindingResult, HttpServletRequest req, HttpServletResponse res, Model model) {
+
+		if (bindingResult.hasErrors()) {
+			List<String> errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.toList());
+			model.addAttribute("message", String.join(", ", errors));
+			model.addAttribute("redirectUrl", "/auth/join");
+			return "/common/message";
+		}
+
+		log.info("LoginForm Data : {} ", form.toString());
+		memberService.loginProcess(form, req, res, model);
+
+		return "/common/message";
+	}
+
+
+	@RequestMapping(method = RequestMethod.GET, path = "/logout")
+	public String logout(HttpServletRequest req, HttpServletResponse res, Model model) {
+
+		HttpSession session = req.getSession();
+		Object obj = session.getAttribute("member");
+
+		if (obj != null) {
+			session.removeAttribute("member");
+			session.invalidate();
+		}
+
+		model.addAttribute("message", "Logout Success!!");
+		model.addAttribute("redirectUrl", "/");
+
+		return "/common/message";
+	}
+
 }
