@@ -3,11 +3,13 @@ package com.sb.template.service;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -28,6 +30,9 @@ public class MemberService {
 
 	@Autowired
 	private EncUtil enc;
+
+	@Value("${spring.app.login-session-limit-millisecond}")
+	private Long sessionLimitMillisecond;
 
 	public Member createMember(AuthForm form) {
 
@@ -79,6 +84,27 @@ public class MemberService {
 		HttpSession session = req.getSession();
 		session.setAttribute("member", memberOp.get());
 
+
+		// If it checked UseAutoLogin, save SessionId in Cookie and Database. for Auto Login.
+		if (form.isUseAutoLogin()) {
+			log.info("set UseAutoLogin Cookie");
+			Cookie authCookie = new Cookie("authCookie", session.getId());
+			authCookie.setPath("/");
+			authCookie.setMaxAge(3000);
+
+			res.addCookie(authCookie);
+
+			memberOp.get().setSessionKey(session.getId());
+
+			Date sessionLimitTime = new Date(System.currentTimeMillis() + (long)((sessionLimitMillisecond == null) ? 600000L : sessionLimitMillisecond));
+			memberOp.get().setSessionLimitTime(sessionLimitTime);
+
+		} else {
+			memberOp.get().setSessionKey("unused");
+			memberOp.get().setSessionLimitTime(new Date(System.currentTimeMillis()));
+		}
+
+
 		// Update latest login time.
 		memberOp.get().setUpdatedTime(new Date());
 		memberRepository.save(memberOp.get());
@@ -86,6 +112,31 @@ public class MemberService {
 
 		model.addAttribute("message", "Login Success!!");
 		model.addAttribute("redirectUrl", "/");
+	}
+
+
+	public Member getMemberInfoBySessionKey(String sessionKey) {
+		log.info("getMemberInfoBySessionKey Start");
+		Optional<Member> result = memberRepository.findBySessionKey(sessionKey);
+
+		if (result.isEmpty()) {
+			log.info("sessionKey is inValid : {} ", sessionKey);
+			return null;
+		}
+
+		Date now = new Date(System.currentTimeMillis());
+		if (result.get().getSessionLimitTime().before(now)) {
+			log.info("sessionKey is expiration Limit Time : {} , Now : {}", result.get().getSessionLimitTime(), now);
+			return null;
+		}
+
+		log.info("Result Member Info {}", result.get().toString());
+		return result.get();
+	}
+
+
+	public void updateMember(Member member) {
+		memberRepository.save(member);
 	}
 
 }

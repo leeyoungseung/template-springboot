@@ -8,6 +8,9 @@ server:
       force: true
       
 spring:
+  app:
+    login-session-limit-millisecond: 180000
+
   thymeleaf:
     prefix : classpath:templates/
     suffix : .html

@@ -1,8 +1,11 @@
 package com.sb.template.controller;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.WebUtils;
 
 import com.sb.template.dto.ResponseDto;
 import com.sb.template.entity.Member;
@@ -124,6 +128,20 @@ public class MembershipController {
 		if (obj != null) {
 			session.removeAttribute("member");
 			session.invalidate();
+
+			Cookie authCookie = WebUtils.getCookie(req, "authCookie");
+			if (authCookie != null) {
+				authCookie.setPath("/");
+				authCookie.setMaxAge(0);
+				res.addCookie(authCookie);
+
+				Optional<Member> entity = memberService.getMemberInfoByMemberId(((Member)obj).getMemberId());
+				Member member = entity.get();
+				member.setSessionKey("unused");
+				member.setSessionLimitTime(new Date(System.currentTimeMillis()));
+
+				memberService.updateMember(member);
+			}
 		}
 
 		model.addAttribute("message", "Logout Success!!");
