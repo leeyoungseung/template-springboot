@@ -102,4 +102,42 @@ public class ReplyService {
 
 		return false;
 	}
+
+
+	public boolean deleteReply(Integer replyNo, Integer boardNo, String memberId) {
+		try {
+
+			Reply reply = replyRepository.findById(replyNo)
+					.orElseThrow(() -> new Exception("Not exist Reply Data by replyNo : ["+replyNo+"]"));
+
+			// exist reply data and match data?
+			if (replyNo == null || reply == null) {
+				throw new Exception("Already deleted Reply Data!!");
+			}
+
+			if (reply.getBoardNo() == null
+					|| reply.getBoardNo() != boardNo
+					|| !boardRepository.existsById(boardNo)
+					) {
+				throw new Exception("Unmatch BoardNo OR Not exist Board Data!!");
+			}
+
+			// MemberId is not null & exist Member data of parameter?
+			if (memberId == null
+					|| !reply.getMemberId().equals(memberId)
+					|| memberRepository.findByMemberId(memberId).isEmpty()) {
+				throw new Exception("Unmatch MemberId OR Not exist Member Data!!");
+			}
+
+			replyRepository.delete(reply);
+
+			return true;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
+
+	}
 }

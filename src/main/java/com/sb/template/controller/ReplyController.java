@@ -8,12 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -151,6 +153,31 @@ public class ReplyController {
 				.data(new Boolean(false))
 				.build()
 				);
+	}
+
+
+	@DeleteMapping(path = "/{replyNo}")
+	public ResponseEntity<?> deleteReply(@PathVariable(required = true) Integer replyNo,
+			@RequestParam(name = "boardNo", required = false) Integer boardNo,
+			@RequestParam(name = "memberId", required = false, value = "") String memberId) {
+
+		if (replyService.deleteReply(replyNo, boardNo, memberId)) {
+			return ResponseEntity.ok(ResponseDto.builder()
+					.resultCode(ResponseInfo.SUCCESS.getResultCode())
+					.message(ResponseInfo.SUCCESS.getMessage())
+					.data(new Boolean(true))
+					.build()
+					);
+		}
+
+
+		return ResponseEntity.ok(ResponseDto.builder()
+				.resultCode(ResponseInfo.SERVER_ERROR.getResultCode())
+				.message(ResponseInfo.SERVER_ERROR.getMessage())
+				.data(new Boolean(false))
+				.build()
+				);
+
 	}
 
 }
