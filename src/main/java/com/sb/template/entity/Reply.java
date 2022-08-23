@@ -9,36 +9,41 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import lombok.Data;
 
 @Entity
 @Table(name = "reply")
 @Data
 public class Reply {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "reply_no")
 	private Integer replyNo;
-	
+
 	@Column(name = "contents")
 	private String contents;
-	
+
 	@Column(name = "board_no")
 	private Integer boardNo;
-	
+
 	@Column(name = "member_id")
 	private String memberId;
-	
+
 	@Column(name = "created_time")
+	@CreationTimestamp
 	private Date createdTime;
-	
+
 	@Column(name = "updated_time")
+	@UpdateTimestamp
 	private Date updatedTime;
-	
+
 	@Column(name = "likes")
 	private Integer likes;
-	
+
 	@Column(name = "dis_likes")
 	private Integer dislikes;
 
