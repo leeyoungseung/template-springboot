@@ -30,6 +30,249 @@
 <button class="btn btn-danger" th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{boardNo}(boardNo=${board.boardNo})} +'\';'">Delete</button>
 </div>
 
+<div class="reply-container">
+    <hr/>
+    <div id="reply-header">
+    </div>
+    <div th:if="${not #strings.isEmpty(session?.member?.memberId)}" class="reply-footer-form">
+      <form id="reply-form">
+        <div class="form-group">
+          <div class="reply-footer-form-contents">
+            <textarea class="form-control" id="reply-contents" placeholder="Input Reply contents" rows="3"></textarea>
+          </div>
+          <div>
+            <button class="btn btn-primary mt-3 px-2 py-2" type="button" id="reply-form-submit">Write Reply</button>
+          </div>
+        </div>
+       </form>
+    </div>
+
+    <div id="reply-body" ></div>
+    <div id="reply-footer">
+        <div  th:if="${#strings.isEmpty(session?.member?.memberId)}" class="reply-footer-default">
+            <label><a class="nav justify-content-center px-4" th:href="@{/auth/login}">Please login to reply.</a></label>
+        </div>
+    </div>
+</div>
+
+<!-- inline JavaScript must be located in layout:fragment="contents" -->
+<script type="text/javascript" th:inline="javascript">
+
+/*<![CDATA[*/
+ var boardNo = /*[[ ${board.boardNo} ]]*/ "";
+ var memberId = /*[[ ${session?.member?.memberId} ]]*/ "";
+/*]]*/
+
+/**
+ * For reply and like function
+ */
+
+var baseApi  = "http://localhost:8080"
+var replyApi = baseApi+"/reply"
+
+
+// validation check
+function validation(method, targetContents, targetMemberId) {
+	if (targetContents == "") {
+		alert("Reply content is empty!!");
+		return false;
+	}
+	if (boardNo == "") {
+		alert("Board Number is empty!!");
+		return false;
+	}
+	if (method == 'c') {
+		if (memberId == "") {
+			alert("Please Login");
+			return false;
+		}
+	} else if (method == 'u' || method == 'd') {
+		if (memberId == "" || memberId != targetMemberId) {
+			alert("Please Login memberId : "+memberId+", targetMemberId : "+targetMemberId);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+// create reply
+$(document).on("click", '#reply-form-submit', function() {
+	alert("create reply")
+	var contents = $("#reply-contents").val();
+
+	if (!validation('c', contents, '')) {
+		return;
+	}
+
+	var newReply = {
+			"contents": contents,
+			"boardNo" : parseInt(boardNo),
+			"memberId": memberId
+	}
+
+	$.ajax({
+		url: replyApi,
+		method : 'POST',
+		contentType : 'application/json; charset=UTF-8',
+		data: JSON.stringify(newReply),
+		success :  function(res){
+			//alert(JSON.stringify(res));
+			clearReplyInput();
+			viewReplies();
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error)
+	    }
+	});
+});
+
+
+// clear reply
+function clearReplyInput() {
+	$("#reply-contents").val('');
+}
+
+
+// view replies
+function viewReplies() {
+
+	$.ajax({
+		url: replyApi+'/list/'+boardNo,
+		method : 'GET',
+		dataType: 'json',
+		success :  function(res){
+			console.log(JSON.stringify(res.data))
+			makeRepliesView(res.data);
+
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	    }
+	});
+}
+
+
+function makeRepliesView(replies){
+	$("#reply-body").empty();
+	var view = '';
+
+	replies.forEach(function (reply){
+		view = view + '<hr/><div>';
+		view = view + '<form>';
+		view = view + '<div>By <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span>';
+        view = view + '</div>';
+		view = view + '<div> Created at <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
+
+		if (reply.memberId == memberId) {
+			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" value='+reply.contents+' name="contents" class="form-control">'+reply.contents+'</textarea></div>';
+			view = view + '<div><input type="hidden" name="memberId" value="'+reply.memberId+'"></div>';
+			view = view + '<div><input type="hidden" name="replyNo" value="'+reply.replyNo+'"></div>';
+			view = view + '<div><input type="button" class="btn btn-warning btn-sm" value="Update" onclick="updateReply(this.form);">&nbsp';
+			view = view + '<input type="button" class="btn btn-danger btn-sm" value="Delete" onclick="deleteReply(this.form);"></div>';
+		} else {
+			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" readonly="readonly" value='+reply.contents+' class="form-control">'+reply.contents+'</textarea></div>';
+		}
+
+		view = view + '</form>';
+		view = view + '</div>';
+	})
+
+	//console.log(view);
+	$("#reply-body").html(view);
+
+}
+
+
+// When page loading, it requests data of reply to API.
+$(document).ready(function() {
+	viewReplies();
+});
+
+
+// update reply
+function updateReply(form) {
+
+	var replyNo = form.replyNo.value;
+	var targetContents = form.contents.value;
+	var targetMemberId = form.memberId.value;
+
+	if (!validation('u', targetContents, targetMemberId)) {
+		return;
+	}
+
+	var updateReply = {
+			"replyNo" : parseInt(replyNo),
+			"contents": targetContents,
+			"boardNo" : parseInt(boardNo),
+			"memberId": targetMemberId
+	}
+
+	console.log("Request data : "+JSON.stringify(updateReply))
+
+	$.ajax({
+		url: replyApi+'/'+replyNo,
+		method : 'PUT',
+		contentType : 'application/json; charset=UTF-8',
+		data: JSON.stringify(updateReply),
+		success :  function(res){
+			alert(res.message+' Update Reply['+replyNo+']');
+			viewReplies();
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error)
+	    }
+	});
+}
+
+
+// delete reply
+function deleteReply(form) {
+
+	var checkFromUser = confirm('Do you really want to delete this Reply');
+
+	if (checkFromUser == false) {
+		return false;
+	}
+
+	var replyNo = form.replyNo.value;
+	var targetContents = form.contents.value;
+	var targetMemberId = form.memberId.value;
+
+	if (!validation('u', targetContents, targetMemberId)) {
+		return;
+	}
+
+	console.log(replyApi+'/'+replyNo+'?boardNo='+boardNo+'&memberId='+memberId)
+
+	$.ajax({
+		url: replyApi+'/'+replyNo+'?boardNo='+boardNo+'&memberId='+memberId,
+		method : 'DELETE',
+		success :  function(res){
+			alert(JSON.stringify(res.message+' Delete Reply'));
+			viewReplies();
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error)
+	    }
+	});
+}
+
+
+</script>
+
 </div>
 </body>
 </html>
