@@ -65,4 +65,41 @@ public class ReplyService {
 	}
 
 
+	@Transactional
+	public boolean updateReply(Integer replyNo, Reply updateReply) {
+		try {
+
+			Reply reply = replyRepository.findById(replyNo)
+					.orElseThrow(() -> new Exception("Not exist Reply Data by no : ["+replyNo+"]"));
+
+			// exist reply data and match data?
+			if (replyNo == null || replyNo != updateReply.getReplyNo() || reply == null) {
+				throw new Exception("Unmatch replyNo=["+replyNo+"]-["+updateReply.getReplyNo()+"] OR Not exist Reply Data!!"+reply.toString());
+			}
+
+			if (reply.getBoardNo() == null
+					|| reply.getBoardNo() != updateReply.getBoardNo()
+					|| !boardRepository.existsById(updateReply.getBoardNo())
+					) {
+				throw new Exception("Unmatch BoardNo OR Not exist Board Data!!");
+			}
+
+			// MemberId is not null & exist Member data of parameter?
+			if (updateReply.getMemberId() == null
+					|| !reply.getMemberId().equals(updateReply.getMemberId())
+					|| memberRepository.findByMemberId(updateReply.getMemberId()).isEmpty()) {
+				throw new Exception("Unmatch MemberId OR Not exist Member Data!!");
+			}
+
+			reply.setContents(updateReply.getContents());
+			replyRepository.save(reply);
+
+			return true;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
 }

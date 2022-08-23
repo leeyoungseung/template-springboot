@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -93,6 +94,48 @@ public class ReplyController {
 
 
 		if (replyService.createReply(form.toEntity())) {
+			return ResponseEntity.ok(ResponseDto.builder()
+					.resultCode(ResponseInfo.SUCCESS.getResultCode())
+					.message(ResponseInfo.SUCCESS.getMessage())
+					.data(new Boolean(true))
+					.build()
+					);
+		}
+
+
+		return ResponseEntity.ok(ResponseDto.builder()
+				.resultCode(ResponseInfo.SERVER_ERROR.getResultCode())
+				.message(ResponseInfo.SERVER_ERROR.getMessage())
+				.data(new Boolean(false))
+				.build()
+				);
+	}
+
+
+	@PutMapping(path = "/{replyNo}")
+	public ResponseEntity<?> updateReply(
+			@Validated @RequestBody ReplyForm form,
+			BindingResult bindingResult,
+			@PathVariable(required = true) Integer replyNo) {
+
+
+		if (bindingResult.hasErrors()) {
+			List<String> errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.toList());
+			StringBuilder errorStr = new StringBuilder();
+			errors.forEach(err -> {
+				errorStr.append("["+err+"],\n");
+			});
+
+			return ResponseEntity.ok(ResponseDto.builder()
+					.resultCode(ResponseInfo.PARAM_ERROR.getResultCode())
+					.message(ResponseInfo.PARAM_ERROR.getMessage())
+					.data(new Boolean(false))
+					.build()
+					);
+		}
+
+
+		if (replyService.updateReply(replyNo, form.toEntity())) {
 			return ResponseEntity.ok(ResponseDto.builder()
 					.resultCode(ResponseInfo.SUCCESS.getResultCode())
 					.message(ResponseInfo.SUCCESS.getMessage())
