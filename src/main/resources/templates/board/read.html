@@ -48,6 +48,7 @@
     </div>
 
     <div id="reply-body" ></div>
+    <div id="reply-paging" ></div>
     <div id="reply-footer">
         <div  th:if="${#strings.isEmpty(session?.member?.memberId)}" class="reply-footer-default">
             <label><a class="nav justify-content-center px-4" th:href="@{/auth/login}">Please login to reply.</a></label>
@@ -120,7 +121,7 @@ $(document).on("click", '#reply-form-submit', function() {
 		success :  function(res){
 			//alert(JSON.stringify(res));
 			clearReplyInput();
-			viewReplies();
+			viewReplies(0);
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);
@@ -139,15 +140,20 @@ function clearReplyInput() {
 
 
 // view replies
-function viewReplies() {
+function viewReplies(p) {
+	if (p < 0) {
+		p = 0;
+	}
 
 	$.ajax({
-		url: replyApi+'/list/'+boardNo,
+		//url: replyApi+'/list/'+boardNo,
+		url: replyApi+'/list-v2/'+boardNo+'?page='+p+'&size=5',
 		method : 'GET',
 		dataType: 'json',
 		success :  function(res){
 			console.log(JSON.stringify(res.data))
-			makeRepliesView(res.data);
+			makeRepliesView(res.data.content);
+			attachPaging(res.data);
 
 		},
 	    error: function(xhr, textStatus, error){
@@ -190,9 +196,66 @@ function makeRepliesView(replies){
 }
 
 
+function attachPaging(data) {
+
+	$("#reply-paging").empty();
+	var view = '';
+
+	view = view + '<div id="paging-container" class="pagination nav justify-content-center px-4">';
+
+	// (1) Prev
+	if (data.first) {
+		view = view + '<div class="page-item disabled">';
+		view = view + '<span class="page-link">Prev</span>';
+		view = view + '</div>';
+	} else {
+		view = view + '<div class="page-item">';
+		view = view + '<a class="page-link" href="javascript:viewReplies('+ (data.number - 1) +');"><span>Prev</span></a>';
+		view = view + '</div>';
+	}
+
+    // (2) Page Number
+    for (var p=0; p < data.totalPages; p++) {
+    	if (p === data.number) {
+    		view = view + '<div class="page-item disabled">';
+    		view = view + '<span class="page-link">['+ (p+1) +']&nbsp;</span>';
+    		view = view + '</div>';
+    	} else {
+    		view = view + '<div class="page-item">';
+    		view = view + '<a class="page-link" onclick="viewReplies('+ (p) +');"><span>['+ (p+1) +']</span></a>';
+    		view = view + '</div>';
+    	}
+    }
+
+    // (3) Next
+	if (data.last) {
+		view = view + '<div class="page-item disabled">';
+		view = view + '<span class="page-link">Next</span>';
+		view = view + '</div>';
+	} else {
+		view = view + '<div class="page-item">';
+		view = view + '<a class="page-link" href="javascript:viewReplies('+ (data.number + 1) +');"><span>Next</span></a>';
+		view = view + '</div>';
+	}
+
+	view = view + '</div>';
+
+	$("#reply-paging").html(view);
+
+	var replyCountView = '';
+	if (0 < data.totalElements) {
+		replyCountView = '<p>Reply '+data.totalElements+'</p>';
+	} else {
+		replyCountView = '<p>Not Exist Reply</p>';
+	}
+
+	$("#reply-header").html(replyCountView);
+}
+
+
 // When page loading, it requests data of reply to API.
 $(document).ready(function() {
-	viewReplies();
+	viewReplies(0);
 });
 
 
@@ -223,7 +286,7 @@ function updateReply(form) {
 		data: JSON.stringify(updateReply),
 		success :  function(res){
 			alert(res.message+' Update Reply['+replyNo+']');
-			viewReplies();
+			viewReplies(0);
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);
@@ -259,7 +322,7 @@ function deleteReply(form) {
 		method : 'DELETE',
 		success :  function(res){
 			alert(JSON.stringify(res.message+' Delete Reply'));
-			viewReplies();
+			viewReplies(0);
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);

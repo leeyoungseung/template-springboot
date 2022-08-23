@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -35,6 +37,43 @@ public class ReplyController {
 
 	@Autowired
 	private ReplyService replyService;
+
+
+	@GetMapping(path = "list-v2/{boardNo}")
+	public ResponseEntity<?> viewReplyListByBoardNoNew(
+			@PathVariable(required = true) int boardNo, Pageable pageable) {
+
+		Page<Reply> replyList = null;
+
+		try {
+			replyList = replyService.getReplyAllByBoardNoPaging(boardNo, pageable);
+
+			if (replyList == null || replyList.getSize() == 0) {
+				System.err.println(ResponseInfo.NO_CONTENT.getMessage());
+
+
+				return ResponseEntity.ok(ResponseDto.builder()
+						.resultCode(ResponseInfo.NO_CONTENT.getResultCode())
+						.message(ResponseInfo.NO_CONTENT.getMessage())
+						.data(replyList)
+						.build()
+						);
+			}
+
+
+			return ResponseEntity.ok(ResponseDto.builder()
+					.resultCode(ResponseInfo.SUCCESS.getResultCode())
+					.message(ResponseInfo.SUCCESS.getMessage())
+					.data(replyList)
+					.build()
+					);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	}
 
 
 	@GetMapping(path = "list/{boardNo}")

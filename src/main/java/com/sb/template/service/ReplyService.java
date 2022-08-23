@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,24 @@ public class ReplyService {
 
 	@Autowired
 	private MemberRepository memberRepository;
+
+
+	public Page<Reply>getReplyAllByBoardNoPaging(int boardNo, Pageable pageable) throws Exception {
+
+		// exist board data of parameter?
+		if (boardRepository.findByBoardNo(boardNo).isEmpty()) {
+			throw new Exception("Not exist Board data!!");
+		}
+
+		// get reply data by boardNo
+		Optional<Page<Reply>> replyData = replyRepository.findByBoardNo(boardNo, pageable);
+		if (replyData.isEmpty()) {
+			return null;
+		}
+
+		return replyData.get();
+	}
+
 
 	// get reply connected by boardNo
 	public List<Reply>getReplyAllByBoardNo(int boardNo) throws Exception {
