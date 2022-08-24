@@ -2,6 +2,7 @@ package com.sb.template.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class ReplyService {
 
 		// exist board data of parameter?
 		if (boardRepository.findByBoardNo(boardNo).isEmpty()) {
-			throw new Exception("Not exist Board data!!");
+			throw new NoSuchElementException("Not exist Board data!!");
 		}
 
 		// get reply data by boardNo
@@ -51,7 +52,7 @@ public class ReplyService {
 
 		// exist board data of parameter?
 		if (boardRepository.findByBoardNo(boardNo).isEmpty()) {
-			throw new Exception("Not exist Board data!!");
+			throw new NoSuchElementException("Not exist Board data!!");
 		}
 
 		// get reply data by boardNo
@@ -94,14 +95,14 @@ public class ReplyService {
 
 			// exist reply data and match data?
 			if (replyNo == null || replyNo != updateReply.getReplyNo() || reply == null) {
-				throw new Exception("Unmatch replyNo=["+replyNo+"]-["+updateReply.getReplyNo()+"] OR Not exist Reply Data!!"+reply.toString());
+				throw new NoSuchElementException("Unmatch replyNo=["+replyNo+"]-["+updateReply.getReplyNo()+"] OR Not exist Reply Data!!"+reply.toString());
 			}
 
 			if (reply.getBoardNo() == null
 					|| reply.getBoardNo() != updateReply.getBoardNo()
 					|| !boardRepository.existsById(updateReply.getBoardNo())
 					) {
-				throw new Exception("Unmatch BoardNo OR Not exist Board Data!!");
+				throw new NoSuchElementException("Unmatch BoardNo OR Not exist Board Data!!");
 			}
 
 			// MemberId is not null & exist Member data of parameter?
@@ -128,7 +129,7 @@ public class ReplyService {
 		try {
 
 			Reply reply = replyRepository.findById(replyNo)
-					.orElseThrow(() -> new Exception("Not exist Reply Data by replyNo : ["+replyNo+"]"));
+					.orElseThrow(() -> new NoSuchElementException("Not exist Reply Data by replyNo : ["+replyNo+"]"));
 
 			// exist reply data and match data?
 			if (replyNo == null || reply == null) {

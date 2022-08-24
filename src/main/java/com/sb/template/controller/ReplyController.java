@@ -1,12 +1,12 @@
 package com.sb.template.controller;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sb.template.dto.ResponseDto;
 import com.sb.template.entity.Reply;
 import com.sb.template.enums.ResponseInfo;
+import com.sb.template.exception.InvalidParamException;
 import com.sb.template.forms.ReplyForm;
 import com.sb.template.service.ReplyService;
 
@@ -41,82 +42,53 @@ public class ReplyController {
 
 	@GetMapping(path = "list-v2/{boardNo}")
 	public ResponseEntity<?> viewReplyListByBoardNoNew(
-			@PathVariable(required = true) int boardNo, Pageable pageable) {
+			@PathVariable(required = true) int boardNo, Pageable pageable) throws Exception {
 
 		Page<Reply> replyList = null;
 
-		try {
-			replyList = replyService.getReplyAllByBoardNoPaging(boardNo, pageable);
+		replyList = replyService.getReplyAllByBoardNoPaging(boardNo, pageable);
 
-			if (replyList == null || replyList.getSize() == 0) {
-				System.err.println(ResponseInfo.NO_CONTENT.getMessage());
-
-
-				return ResponseEntity.ok(ResponseDto.builder()
-						.resultCode(ResponseInfo.NO_CONTENT.getResultCode())
-						.message(ResponseInfo.NO_CONTENT.getMessage())
-						.data(replyList)
-						.build()
-						);
-			}
-
-
-			return ResponseEntity.ok(ResponseDto.builder()
-					.resultCode(ResponseInfo.SUCCESS.getResultCode())
-					.message(ResponseInfo.SUCCESS.getMessage())
-					.data(replyList)
-					.build()
-					);
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (replyList == null || replyList.getSize() == 0) {
+			log.error(ResponseInfo.NO_CONTENT.getMessage());
+			throw new NoSuchElementException(String.format("Failure Reply Create!! Board_No : {%s}", boardNo));
 		}
 
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		return ResponseEntity.ok(ResponseDto.builder()
+				.resultCode(ResponseInfo.SUCCESS.getResultCode())
+				.message(ResponseInfo.SUCCESS.getMessage())
+				.data(replyList)
+				.build()
+				);
 	}
 
 
 	@GetMapping(path = "list/{boardNo}")
 	public ResponseEntity<?> viewReplyListByBoardNo(
-			@PathVariable(required = true) int boardNo) {
+			@PathVariable(required = true) int boardNo) throws Exception {
 
 		List<Reply> replyList = null;
+		replyList = replyService.getReplyAllByBoardNo(boardNo);
 
-		try {
-			replyList = replyService.getReplyAllByBoardNo(boardNo);
-
-			if (replyList == null || replyList.size() == 0) {
-				System.err.println(ResponseInfo.NO_CONTENT.getMessage());
-
-
-				return ResponseEntity.ok(ResponseDto.builder()
-						.resultCode(ResponseInfo.NO_CONTENT.getResultCode())
-						.message(ResponseInfo.NO_CONTENT.getMessage())
-						.data(replyList)
-						.build()
-						);
-			}
-
-
-			return ResponseEntity.ok(ResponseDto.builder()
-					.resultCode(ResponseInfo.SUCCESS.getResultCode())
-					.message(ResponseInfo.SUCCESS.getMessage())
-					.data(replyList)
-					.build()
-					);
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (replyList == null || replyList.size() == 0) {
+			log.error(ResponseInfo.NO_CONTENT.getMessage());
+			throw new NoSuchElementException(String.format("Failure Reply Create!! Board_No : {%s}", boardNo));
 		}
 
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+
+		return ResponseEntity.ok(ResponseDto.builder()
+				.resultCode(ResponseInfo.SUCCESS.getResultCode())
+				.message(ResponseInfo.SUCCESS.getMessage())
+				.data(replyList)
+				.build()
+				);
+
 	}
 
 
 	@PostMapping
 	public ResponseEntity<?> createReply(
 			@Validated @RequestBody ReplyForm form,
-			BindingResult bindingResult) {
+			BindingResult bindingResult) throws Exception {
 
 		if (bindingResult.hasErrors()) {
 			List<String> errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.toList());
@@ -125,31 +97,21 @@ public class ReplyController {
 				errorStr.append("["+err+"],\n");
 			});
 
-			return ResponseEntity.ok(ResponseDto.builder()
-					.resultCode(ResponseInfo.PARAM_ERROR.getResultCode())
-					.message(ResponseInfo.PARAM_ERROR.getMessage())
-					.data(new Boolean(false))
-					.build()
-					);
+			throw new InvalidParamException(String.format("Failure Reply Create!! Board_No : {%s}, Error Message {%s}",
+					form.getBoardNo(), errorStr.toString()));
 		}
-
 
 		if (replyService.createReply(form.toEntity())) {
 			return ResponseEntity.ok(ResponseDto.builder()
 					.resultCode(ResponseInfo.SUCCESS.getResultCode())
 					.message(ResponseInfo.SUCCESS.getMessage())
-					.data(new Boolean(true))
+					.data(true)
 					.build()
 					);
+		} else {
+			throw new Exception(String.format("Failure Reply Create!! Board_No : {%s}", form.getBoardNo()));
+
 		}
-
-
-		return ResponseEntity.ok(ResponseDto.builder()
-				.resultCode(ResponseInfo.SERVER_ERROR.getResultCode())
-				.message(ResponseInfo.SERVER_ERROR.getMessage())
-				.data(new Boolean(false))
-				.build()
-				);
 	}
 
 
@@ -157,7 +119,7 @@ public class ReplyController {
 	public ResponseEntity<?> updateReply(
 			@Validated @RequestBody ReplyForm form,
 			BindingResult bindingResult,
-			@PathVariable(required = true) Integer replyNo) {
+			@PathVariable(required = true) Integer replyNo) throws Exception {
 
 
 		if (bindingResult.hasErrors()) {
@@ -167,12 +129,8 @@ public class ReplyController {
 				errorStr.append("["+err+"],\n");
 			});
 
-			return ResponseEntity.ok(ResponseDto.builder()
-					.resultCode(ResponseInfo.PARAM_ERROR.getResultCode())
-					.message(ResponseInfo.PARAM_ERROR.getMessage())
-					.data(new Boolean(false))
-					.build()
-					);
+			throw new InvalidParamException(String.format("Failure Reply Update!! Board_No : {%s}, Reply_No {%s}, Error Message {%s}",
+					form.getBoardNo(), replyNo, errorStr.toString()));
 		}
 
 
@@ -180,42 +138,34 @@ public class ReplyController {
 			return ResponseEntity.ok(ResponseDto.builder()
 					.resultCode(ResponseInfo.SUCCESS.getResultCode())
 					.message(ResponseInfo.SUCCESS.getMessage())
-					.data(new Boolean(true))
+					.data(true)
 					.build()
 					);
+		} else {
+			throw new Exception(String.format("Failure Reply Update!! Board_No : {%s}, Reply_No {%s}", form.getBoardNo(), replyNo));
+
 		}
 
-
-		return ResponseEntity.ok(ResponseDto.builder()
-				.resultCode(ResponseInfo.SERVER_ERROR.getResultCode())
-				.message(ResponseInfo.SERVER_ERROR.getMessage())
-				.data(new Boolean(false))
-				.build()
-				);
 	}
 
 
 	@DeleteMapping(path = "/{replyNo}")
 	public ResponseEntity<?> deleteReply(@PathVariable(required = true) Integer replyNo,
 			@RequestParam(name = "boardNo", required = false) Integer boardNo,
-			@RequestParam(name = "memberId", required = false, value = "") String memberId) {
+			@RequestParam(name = "memberId", required = false, value = "") String memberId) throws Exception {
 
 		if (replyService.deleteReply(replyNo, boardNo, memberId)) {
 			return ResponseEntity.ok(ResponseDto.builder()
 					.resultCode(ResponseInfo.SUCCESS.getResultCode())
 					.message(ResponseInfo.SUCCESS.getMessage())
-					.data(new Boolean(true))
+					.data(true)
 					.build()
 					);
+
+		} else {
+			throw new Exception(String.format("Failure Reply Delete!! Board_No : {%s}, Reply_No {%s}", boardNo, replyNo));
+
 		}
-
-
-		return ResponseEntity.ok(ResponseDto.builder()
-				.resultCode(ResponseInfo.SERVER_ERROR.getResultCode())
-				.message(ResponseInfo.SERVER_ERROR.getMessage())
-				.data(new Boolean(false))
-				.build()
-				);
 
 	}
 

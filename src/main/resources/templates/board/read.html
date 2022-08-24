@@ -123,11 +123,9 @@ $(document).on("click", '#reply-form-submit', function() {
 			clearReplyInput();
 			viewReplies(0);
 		},
-	    error: function(xhr, textStatus, error){
-	      console.log(xhr.statusText);
-	      console.log(textStatus);
-	      console.log(error);
-	      alert(error)
+	    error: function(res){
+	      //console.log("res : "+JSON.stringify(res));
+	      alert(res.responseJSON.message+" ["+res.responseJSON.data+"]")
 	    }
 	});
 });
@@ -156,11 +154,10 @@ function viewReplies(p) {
 			attachPaging(res.data);
 
 		},
-	    error: function(xhr, textStatus, error){
-	      console.log(xhr.statusText);
-	      console.log(textStatus);
-	      console.log(error);
-	    }
+	    error: function(res){
+		    //console.log("res : "+JSON.stringify(res));
+		    alert(res.responseJSON.message+" ["+res.responseJSON.data+"]")
+		}
 	});
 }
 
@@ -288,12 +285,10 @@ function updateReply(form) {
 			alert(res.message+' Update Reply['+replyNo+']');
 			viewReplies(0);
 		},
-	    error: function(xhr, textStatus, error){
-	      console.log(xhr.statusText);
-	      console.log(textStatus);
-	      console.log(error);
-	      alert(error)
-	    }
+	    error: function(res){
+		    //console.log("res : "+JSON.stringify(res));
+		    alert(res.responseJSON.message+" ["+res.responseJSON.data+"]")
+		}
 	});
 }
 
@@ -324,12 +319,10 @@ function deleteReply(form) {
 			alert(JSON.stringify(res.message+' Delete Reply'));
 			viewReplies(0);
 		},
-	    error: function(xhr, textStatus, error){
-	      console.log(xhr.statusText);
-	      console.log(textStatus);
-	      console.log(error);
-	      alert(error)
-	    }
+	    error: function(res){
+		    //console.log("res : "+JSON.stringify(res));
+		    alert(res.responseJSON.message+" ["+res.responseJSON.data+"]")
+		}
 	});
 }
 
