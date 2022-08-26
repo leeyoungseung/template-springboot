@@ -56,6 +56,9 @@ dependencies {
     // JQuery
     implementation group: 'org.webjars', name: 'jquery', version: '3.6.0'
 
+    // Swagger
+    implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+
 }
 
 tasks.named('test') {

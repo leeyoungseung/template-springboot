@@ -8,6 +8,8 @@ server:
       force: true
       
 spring:
+  mvc:    pathmatch:      matching-strategy: ant-path-matcher
+
   app:
     login-session-limit-millisecond: 180000
 

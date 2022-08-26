@@ -28,8 +28,13 @@ import com.sb.template.exception.InvalidParamException;
 import com.sb.template.forms.ReplyForm;
 import com.sb.template.service.ReplyService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.annotations.ApiIgnore;
 
+@Api(tags = "API providing infomation of Reply")
 @Slf4j
 @RestController
 @RequestMapping(path = "/reply")
@@ -40,6 +45,8 @@ public class ReplyController {
 	private ReplyService replyService;
 
 
+	@ApiOperation(value = "Return data list of paged reply of Board.")
+	@ApiImplicitParam(name = "boardNo", value = "'Board Number' associated with List of Reply.")
 	@GetMapping(path = "list-v2/{boardNo}")
 	public ResponseEntity<?> viewReplyListByBoardNoNew(
 			@PathVariable(required = true) int boardNo, Pageable pageable) throws Exception {
@@ -62,6 +69,7 @@ public class ReplyController {
 	}
 
 
+	@ApiIgnore
 	@GetMapping(path = "list/{boardNo}")
 	public ResponseEntity<?> viewReplyListByBoardNo(
 			@PathVariable(required = true) int boardNo) throws Exception {
@@ -84,7 +92,7 @@ public class ReplyController {
 
 	}
 
-
+	@ApiOperation(value = "Create data of reply.")
 	@PostMapping
 	public ResponseEntity<?> createReply(
 			@Validated @RequestBody ReplyForm form,
@@ -115,6 +123,8 @@ public class ReplyController {
 	}
 
 
+	@ApiOperation(value = "Update data of reply.")
+	@ApiImplicitParam(name = "replyNo", value = "'Unique-ID' of Reply.")
 	@PutMapping(path = "/{replyNo}")
 	public ResponseEntity<?> updateReply(
 			@Validated @RequestBody ReplyForm form,
@@ -149,6 +159,8 @@ public class ReplyController {
 	}
 
 
+	@ApiOperation(value = "Delete data of reply.")
+	@ApiImplicitParam(name = "replyNo", value = "'Unique-ID' of Reply.")
 	@DeleteMapping(path = "/{replyNo}")
 	public ResponseEntity<?> deleteReply(@PathVariable(required = true) Integer replyNo,
 			@RequestParam(name = "boardNo", required = false) Integer boardNo,
