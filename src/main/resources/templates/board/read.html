@@ -18,6 +18,16 @@
 
     <p class="blog-post-meta mt-2">Created at [[${board.createdTime}]] / Last Updated : [[${board.updatedTime}]]</p>
 
+    <div class="nav">
+	    <div>
+	        <p th:if="${not #strings.isEmpty(board.memberId)}" th:text="'By ' + ${board.memberId}"></p>
+	    </div>
+	    <div class="like-box-board ps-4">
+	        <label id="likeCount">0</label> <a><img style="width: 2em; height: 2em;" class="likeImg-board" th:src="@{/images/like.png}" th:value="like"></a> &nbsp;&nbsp;
+	        <label id="dislikeCount">0</label> <a><img style="width: 2em; height: 2em;" class="likeImg-board" th:src="@{/images/dislike.png}" th:value="dislike"></a>
+	    </div>
+    </div>
+
     </div>
     <hr/>
     <div class="mt-4 mb-5 px-2 py-2" style="width: 100%;">
@@ -253,6 +263,7 @@ function attachPaging(data) {
 // When page loading, it requests data of reply to API.
 $(document).ready(function() {
 	viewReplies(0);
+	viewLikeAndDislikeCount();
 });
 
 
@@ -326,6 +337,80 @@ function deleteReply(form) {
 	});
 }
 
+var likeApi = baseApi+"/like"
+
+//view board like
+function viewLikeAndDislikeCount() {
+
+	var likeApiGet = likeApi+'?targetNo='+boardNo+'&memberId='+memberId;
+
+	$.ajax({
+		url: likeApiGet,
+		method : 'GET',
+		dataType: 'json',
+		success :  function(res){
+			console.log(JSON.stringify(res.data))
+			makeLikeAndDislikeCountView(res.data);
+		},
+	    error: function(res){
+		    //console.log("res : "+JSON.stringify(res));
+		    alert(res.responseJSON.message+" ["+res.responseJSON.data+"]")
+		}
+	});
+}
+
+function makeLikeAndDislikeCountView(data) {
+	//alert(JSON.stringify(data))
+	$("#likeCount").text(data.likeCount)
+	$("#dislikeCount").text(data.dislikeCount)
+}
+
+//create or update board like
+$(document).on("click", '.likeImg-board', function() {
+	createOrUpdateLike($(this).attr('value'), parseInt(boardNo));
+});
+
+function createOrUpdateLike(status, targetNo) {
+
+	var likeStatus = false
+	if (status === 'like') {
+		likeStatus = true;
+
+	} else if (status === 'dislike') {
+		likeStatus = false;
+
+	} else {
+		alert("function error");
+		return;
+	}
+
+	if ( !memberId ) {
+		alert("Please do login. like fuction can be used by login user only.");
+		return;
+	}
+
+	var likeObj = {
+			"likeStatus" : likeStatus,
+			"targetNo" : targetNo,
+			"memberId": memberId
+	}
+
+	console.log("createOrUpdateLike Request data : "+JSON.stringify(updateReply))
+
+	$.ajax({
+		url: likeApi,
+		method : 'POST',
+		contentType : 'application/json; charset=UTF-8',
+		data: JSON.stringify(likeObj),
+		success :  function(res){
+			alert(res.message+' Update Like : ['+targetNo+']');
+			viewLikeAndDislikeCount();
+		},
+	    error: function(res){
+		    alert(res.responseJSON.message+" ["+res.responseJSON.data+"]")
+		}
+	});
+}
 
 </script>
 
