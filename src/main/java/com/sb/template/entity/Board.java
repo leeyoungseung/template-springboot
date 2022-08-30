@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Board {
+public class Board extends Likeable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,16 +52,5 @@ public class Board {
 	@UpdateTimestamp
 	private Date updatedTime;
 
-	@Column(name = "likes")
-	private Integer likes;
-
-	@Column(name = "dis_likes")
-	private Integer dislikes;
-
-	@PrePersist
-	public void prePersist() {
-		this.likes = this.likes == null ? 0 : this.likes;
-		this.dislikes = this.dislikes == null ? 0 : this.dislikes;
-	}
 }
 

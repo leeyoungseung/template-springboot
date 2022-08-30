@@ -180,7 +180,10 @@ function makeRepliesView(replies){
 		view = view + '<hr/><div>';
 		view = view + '<form>';
 		view = view + '<div>By <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span>';
-        view = view + '</div>';
+		view = view + '<div class="like-box-reply">';
+		view = view + '<label id="likeCount-reply-'+reply.replyNo+'">'+reply.likes+'</label> <a href="javascript:void(0);" onclick="doLikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/like.png" value="like" style="width: 1em; height: 1em;"></a> &nbsp;&nbsp;';
+		view = view + '<label id="dislikeCount-reply-'+reply.replyNo+'">'+reply.dislikes+'</label> <a href="javascript:void(0);" onclick="doDislikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/dislike.png" value="dislike" style="width: 1em; height: 1em;"></a>';
+		view = view + '</div></div>';
 		view = view + '<div> Created at <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
 
 		if (reply.memberId == memberId) {
@@ -263,7 +266,7 @@ function attachPaging(data) {
 // When page loading, it requests data of reply to API.
 $(document).ready(function() {
 	viewReplies(0);
-	viewLikeAndDislikeCount();
+	viewLikeAndDislikeCount('board');
 });
 
 
@@ -340,9 +343,9 @@ function deleteReply(form) {
 var likeApi = baseApi+"/like"
 
 //view board like
-function viewLikeAndDislikeCount() {
+function viewLikeAndDislikeCount(type) {
 
-	var likeApiGet = likeApi+'?targetNo='+boardNo+'&memberId='+memberId;
+	var likeApiGet = likeApi+'?targetNo='+boardNo+'&memberId='+memberId+'&likeType='+type;
 
 	$.ajax({
 		url: likeApiGet,
@@ -367,10 +370,10 @@ function makeLikeAndDislikeCountView(data) {
 
 //create or update board like
 $(document).on("click", '.likeImg-board', function() {
-	createOrUpdateLike($(this).attr('value'), parseInt(boardNo));
+	createOrUpdateLike($(this).attr('value'), 'board', parseInt(boardNo));
 });
 
-function createOrUpdateLike(status, targetNo) {
+function createOrUpdateLike(status, type, targetNo) {
 
 	var likeStatus = false
 	if (status === 'like') {
@@ -380,7 +383,7 @@ function createOrUpdateLike(status, targetNo) {
 		likeStatus = false;
 
 	} else {
-		alert("function error");
+		alert("Like function error : [Unsuitable Status : "+ status +"]");
 		return;
 	}
 
@@ -389,10 +392,16 @@ function createOrUpdateLike(status, targetNo) {
 		return;
 	}
 
+	if (type !== 'board' && type !== 'reply') {
+		alert("Like function error : [Unsuitable type : "+ type +"]");
+		return;
+	}
+
 	var likeObj = {
 			"likeStatus" : likeStatus,
 			"targetNo" : targetNo,
-			"memberId": memberId
+			"memberId": memberId,
+			"likeType": type
 	}
 
 	console.log("createOrUpdateLike Request data : "+JSON.stringify(updateReply))
@@ -404,13 +413,26 @@ function createOrUpdateLike(status, targetNo) {
 		data: JSON.stringify(likeObj),
 		success :  function(res){
 			alert(res.message+' Update Like : ['+targetNo+']');
-			viewLikeAndDislikeCount();
+			if (type === 'board') {
+				viewLikeAndDislikeCount(type);
+			} else if (type === 'reply') {
+				viewReplies();
+			}
 		},
 	    error: function(res){
 		    alert(res.responseJSON.message+" ["+res.responseJSON.data+"]")
 		}
 	});
 }
+
+function doLikeReply(replyNo) {
+	createOrUpdateLike('like', 'reply', parseInt(replyNo));
+}
+
+function doDislikeReply(replyNo) {
+	createOrUpdateLike('dislike', 'reply', parseInt(replyNo));
+}
+
 
 </script>
 

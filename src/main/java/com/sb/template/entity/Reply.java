@@ -17,7 +17,7 @@ import lombok.Data;
 @Entity
 @Table(name = "reply")
 @Data
-public class Reply {
+public class Reply extends Likeable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,11 +40,5 @@ public class Reply {
 	@Column(name = "updated_time")
 	@UpdateTimestamp
 	private Date updatedTime;
-
-	@Column(name = "likes")
-	private Integer likes;
-
-	@Column(name = "dis_likes")
-	private Integer dislikes;
 
 }

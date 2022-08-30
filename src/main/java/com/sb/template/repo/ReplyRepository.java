@@ -14,4 +14,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Integer> {
 	Optional<List<Reply>> findByBoardNo(Integer boardNo);
 
 	Optional<Page<Reply>> findByBoardNo(Integer boardNo, Pageable pageable);
+
+	Optional<Reply> findByReplyNo(Integer replyNo);
 }

@@ -36,17 +36,18 @@ public class LikeController {
 	@GetMapping
 	public ResponseEntity<?> getLikeInfo(
 			@RequestParam(name = "targetNo", required = true) Integer targetNo,
-			@RequestParam(name = "memberId", required = true) String memberId
+			@RequestParam(name = "memberId", required = true) String memberId,
+			@RequestParam(name = "likeType", required = true) String likeType
 			) throws Exception {
 
-		log.info("targetNo : {}, memberId : {}", targetNo, memberId);
+		log.info("targetNo : {}, memberId : {}, likeType : {}", targetNo, memberId, likeType);
 
-		if (targetNo == null || memberId == null) {
+		if (targetNo == null || memberId == null || likeType == null) {
 			throw new InvalidParamException(
-					String.format("Target_No : {%s}, MemberId : {%s}", targetNo, memberId));
+					String.format("Target_No : {%s}, MemberId : {%s}, likeType : {%s}", targetNo, memberId, likeType));
 		}
 
-		LikeDto dto = likeService.getLikeInfo(targetNo, memberId);
+		LikeDto dto = likeService.getLikeInfo(targetNo, memberId, likeType);
 
 		return ResponseEntity.ok(ResponseDto.builder()
 				.resultCode(ResponseInfo.SUCCESS.getResultCode())

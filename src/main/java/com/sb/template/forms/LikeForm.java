@@ -16,7 +16,7 @@ public class LikeForm {
 	@NotNull
 	private boolean likeStatus;
 
-
+	@NotNull
 	private String likeType;
 
 	@NotNull
