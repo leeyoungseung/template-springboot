@@ -41,9 +41,9 @@ public class BoardServiceTest {
 		Pageable pageable = PageRequest.of(0, 10);
 
 		Board board1 = new Board(1, 1, "test_board_title",
-				"test_board_contents001","test001@gmail.com",new Date(), new Date(), 0, 0);
+				"test_board_contents001","test001@gmail.com",new Date(), new Date());
 		Board board2 = new Board(2, 2, "test_board_title",
-				"test_board_contents002","test002@gmail.com",new Date(), new Date(), 0, 0);
+				"test_board_contents002","test002@gmail.com",new Date(), new Date());
 		List<Board> boardList = new ArrayList<Board>();
 		boardList.add(board1);
 		boardList.add(board2);
@@ -68,7 +68,7 @@ public class BoardServiceTest {
 	public void createBoardTest() {
 		// given
 		Board board = new Board(1, 1, "test_board_title",
-				"test_board_contents001","test001@gmail.com",new Date(), new Date(), 0, 0);
+				"test_board_contents001","test001@gmail.com",new Date(), new Date());
 		BDDMockito.given(boardRepo.save(any())).willReturn(board);
 
 		// when
