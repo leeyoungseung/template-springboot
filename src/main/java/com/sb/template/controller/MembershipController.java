@@ -37,6 +37,7 @@ import com.sb.template.dto.ResponseDto;
 import com.sb.template.entity.Member;
 import com.sb.template.enums.ResponseInfo;
 import com.sb.template.forms.AuthForm;
+import com.sb.template.service.GoogleService;
 import com.sb.template.service.MemberService;
 import com.sb.template.service.storage.FilesStorageService;
 
@@ -52,6 +53,9 @@ public class MembershipController {
 
 	@Autowired
 	private FilesStorageService filesStorageService;
+
+	@Autowired
+	private GoogleService googleService;
 
 	@RequestMapping(method = RequestMethod.GET, path = "/join")
 	public String joinMember(@ModelAttribute AuthForm form) {
@@ -275,6 +279,25 @@ public class MembershipController {
 		session.setAttribute("member", member);
 
 		return "redirect:/auth/member/" + member.getMemberNo();
+	}
+
+
+	@GetMapping(value = "/google-login")
+	@ResponseBody
+	public ResponseEntity<?> googleLoginInit() throws Exception {
+
+		return googleService.googleLoginInit();
+	}
+
+
+	@GetMapping(value = "/do-google-login")
+	public String doGoogleLogin(
+			@RequestParam(value = "code", required = true) String code ,
+			HttpServletRequest req, HttpServletResponse res, Model model) throws Exception {
+
+		googleService.googleLoginProcess(code, req, res, model);
+
+		return "/common/message";
 	}
 
 }

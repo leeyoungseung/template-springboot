@@ -56,3 +56,16 @@ property:
     temp-upload-path: uploads/tmp
     upload-path-member-pic: uploads/member-profile
     allow-extentions: .png,.jpg,.jpeg,.gif
+
+google:
+  auth:
+    url: 'https://oauth2.googleapis.com'
+    scope: 'profile,email,openid'
+  login:
+    url: 'https://accounts.google.com'
+  redirect:
+    uri: 'http://localhost:8080/auth/do-google-login'
+  client:
+    id: ''
+  secret: ''
+ 
