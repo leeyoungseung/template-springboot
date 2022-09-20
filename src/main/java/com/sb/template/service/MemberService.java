@@ -77,7 +77,10 @@ public class MemberService {
 
 		// Set User Data in Session
 		HttpSession session = req.getSession();
+		session.setMaxInactiveInterval(300000);
 		session.setAttribute("member", memberOp.get());
+
+		log.info("JSESSIONID : {} ", session.getId());
 
 		// Update latest login time.
 		memberOp.get().setUpdatedTime(new Date());
