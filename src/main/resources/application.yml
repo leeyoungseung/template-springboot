@@ -18,17 +18,17 @@ spring:
     suffix : .html
     cache : false
 
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/boot_test?useSSL=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
-    username: root
-    password: 1234
-    hikari:      auto-commit: false
-      maximum-pool-size: 30
-      minimum-idle: 10
-      max-lifetime: 1200000
-      connection-timeout: 20000
-      idle-timeout: 300000
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/boot_test?useSSL=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
+#    username: root
+#    password: 1234
+#    hikari:#      auto-commit: false
+#      maximum-pool-size: 30
+#      minimum-idle: 10
+#      max-lifetime: 1200000
+#      connection-timeout: 20000
+#      idle-timeout: 300000
 
   jpa:
     open-in-view: true
